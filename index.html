@@ -3,458 +3,437 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>泡泡消消乐 · 中英配对</title>
+    <title>深蓝·浅蓝 · 英文消消乐</title>
     <style>
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
-            user-select: none;
+            user-select: none; /* 避免拖动选中文字 */
         }
+
         body {
-            background-color: #ffffff;
+            margin: 0;
             min-height: 100vh;
+            background: white;
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            padding: 16px;
+            justify-content: center;
+            padding: 1rem;
         }
+
         .game-container {
             width: 100%;
-            max-width: 1100px;
+            max-width: 900px;
             background: white;
-            border-radius: 48px;
-            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.03);
-            padding: 24px 24px 30px;
+            border-radius: 2rem;
+            padding: 1.5rem 1rem 1rem 1rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.02);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
-        h1 {
-            text-align: center;
-            font-weight: 400;
-            font-size: 2.2rem;
-            letter-spacing: 2px;
-            color: #2c3e50;
-            margin-bottom: 10px;
-        }
-        h1 span {
-            font-weight: 300;
-            color: #7f8c8d;
-        }
-        /* 泡泡网格 */
+
+        /* 网格布局：5列，每个单元格固定大小，自动换行 */
         .bubble-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 22px 16px;
+            gap: 1rem 0.8rem;
             justify-items: center;
             align-items: center;
-            margin: 30px 0 40px;
-            padding: 10px 5px;
-        }
-        /* 3D泡泡公用样式 */
-        .bubble {
             width: 100%;
-            aspect-ratio: 1 / 1;
-            max-width: 160px;
+            margin: 1rem 0 1.5rem 0;
+            padding: 0.5rem;
+        }
+
+        /* 泡泡基础样式 —— 真正的3D立体球效果 */
+        .bubble {
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            font-size: 1rem;
+            font-size: 14px;
             font-weight: 500;
-            padding: 0 6px;
-            word-break: break-word;
-            cursor: pointer;
-            transition: transform 0.1s ease, filter 0.2s, box-shadow 0.15s;
-            /* 3D立体核心 */
-            box-shadow: 
-                0 20px 18px -8px rgba(0, 0, 0, 0.3),
-                0 0 0 2px rgba(255, 255, 255, 0.6) inset,
-                0 -8px 12px rgba(0, 0, 0, 0.2) inset,
-                8px 10px 12px rgba(255, 255, 255, 0.7) inset;
-            background: radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.9) 5%, rgba(200, 225, 255, 0.2) 70%);
-            will-change: transform;
-            color: #0a1a2a;
-            text-shadow: 0 2px 3px rgba(255,255,255,0.5);
             line-height: 1.3;
-        }
-        /* 增强3D凹凸感 */
-        .bubble::after {
-            content: "";
-            position: absolute;
-            width: 22%;
-            height: 22%;
-            top: 18%;
-            left: 18%;
-            background: radial-gradient(circle, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.1) 80%);
-            border-radius: 50%;
-            pointer-events: none;
-            filter: blur(1px);
-        }
-        .bubble {
+            padding: 0.4rem;
+            word-break: break-word;
+            box-shadow: 0 15px 0 rgba(0, 0, 0, 0.12),      /* 底部厚重投影制造立体悬浮感 */
+                        0 10px 20px rgba(0, 0, 0, 0.2),
+                        inset 0 -8px 8px rgba(0, 0, 0, 0.2),   /* 内凹阴影 */
+                        inset 0 8px 10px rgba(255, 255, 255, 0.7); /* 顶部强烈高光 */
+            transition: transform 0.1s ease, box-shadow 0.15s ease;
+            cursor: pointer;
+            will-change: transform;
+            color: #1e2b3a; /* 基础文字色，具体由具体颜色覆盖 */
             position: relative;
         }
-        /* 英文深蓝色泡泡 */
-        .bubble.english {
-            background-color: #1a3b5d;  /* 深蓝底色 */
-            background: radial-gradient(circle at 30% 28%, #98b9e6 5%, #0f2b4a 90%);
-            box-shadow: 
-                0 20px 18px -8px rgba(0,0,0,0.4),
-                0 0 0 2px rgba(255, 255, 255, 0.5) inset,
-                0 -8px 12px #071a2b inset,
-                8px 10px 12px rgba(220, 235, 255, 0.8) inset;
-            color: #f0f7ff;
-            text-shadow: 0 2px 3px #00000040;
+
+        /* 英文泡泡：深蓝立体 */
+        .bubble.en {
+            background: radial-gradient(circle at 30% 28%, #6d8fc6, #0a2647); /* 深蓝高光 */
+            color: white;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 0 #082032,
+                        0 12px 18px rgba(0,0,0,0.35),
+                        inset 0 -8px 8px rgba(0,0,0,0.5),
+                        inset 0 8px 12px rgba(255, 255, 255, 0.6);
         }
-        /* 中文浅蓝色泡泡 */
-        .bubble.chinese {
-            background-color: #a0c9f0;
-            background: radial-gradient(circle at 30% 28%, #f0f9ff 5%, #89b9e6 90%);
-            box-shadow: 
-                0 20px 18px -8px rgba(0, 0, 0, 0.25),
-                0 0 0 2px rgba(255, 255, 255, 0.8) inset,
-                0 -8px 12px #5f8fc0 inset,
-                8px 10px 12px rgba(255, 255, 255, 0.9) inset;
-            color: #022b49;
-            text-shadow: 0 1px 2px white;
+
+        /* 中文泡泡：浅蓝立体 */
+        .bubble.zh {
+            background: radial-gradient(circle at 30% 28%, #f0faff, #7ec8e0); /* 浅蓝高光 */
+            color: #003153;
+            font-weight: 550;
+            text-shadow: 0 1px 2px rgba(255,255,255,0.6);
+            box-shadow: 0 15px 0 #3b8ba0,
+                        0 12px 18px rgba(0,0,0,0.2),
+                        inset 0 -8px 8px rgba(0, 50, 70, 0.2),
+                        inset 0 8px 12px rgba(255, 255, 255, 0.9);
         }
-        /* 选中高亮效果 */
+
+        /* 选中高亮效果：用金色外圈 + 轻微放大 */
         .bubble.selected {
-            filter: brightness(1.2);
-            transform: scale(1.04);
-            box-shadow: 
-                0 22px 20px -6px black,
-                0 0 0 4px #f9f3b0 inset,
-                0 -6px 12px rgba(0,0,0,0.4) inset,
-                8px 10px 12px rgba(255, 255, 255, 0.9) inset;
-            transition: all 0.12s;
-            z-index: 3;
+            box-shadow: 0 0 0 4px gold, 0 18px 0 rgba(0, 0, 0, 0.15), 0 12px 20px rgba(0,0,0,0.25), inset 0 -8px 8px rgba(0,0,0,0.2), inset 0 8px 12px rgba(255,255,255,0.8);
+            transform: scale(1.02);
+            transition: all 0.1s;
+            z-index: 5;
         }
-        /* 消除的泡泡直接隐藏 (保留占位但不可见，保持网格稳定) */
-        .bubble.matched {
-            opacity: 0;
-            pointer-events: none;
-            cursor: default;
-            box-shadow: none;
-            background: transparent !important;
-            transition: opacity 0.2s;
+
+        /* 错误提示快速闪红 (加在泡泡上) */
+        .bubble.error {
+            background: radial-gradient(circle at 30% 28%, #ffb0b0, #b22) !important;
+            box-shadow: 0 0 0 3px red, 0 15px 0 #5a2e2e !important;
+            transition: 0.05s;
         }
-        .bubble.matched::after {
-            opacity: 0;
-        }
+
         /* 底部按钮 */
-        .bottom-panel {
-            display: flex;
-            justify-content: center;
-            margin-top: 10px;
-        }
-        .shuffle-btn {
-            background: white;
-            border: 2px solid #d0ddee;
-            border-radius: 60px;
-            padding: 18px 60px;
-            font-size: 1.8rem;
-            font-weight: 350;
-            color: #2c5282;
-            letter-spacing: 2px;
-            box-shadow: 0 10px 18px rgba(0, 30, 50, 0.1), 0 0 0 1px #ffffff inset, 0 -4px 6px #ccddec inset;
+        .reset-button {
+            background: #f2f6fc;
+            border: 2px solid #cbd5e1;
+            font-size: 1.5rem;
+            font-weight: 600;
+            padding: 0.8rem 2.5rem;
+            border-radius: 3rem;
+            color: #0b2b4a;
+            letter-spacing: 1px;
             cursor: pointer;
-            transition: all 0.15s;
-            background: #f4f9ff;
+            box-shadow: 0 8px 0 #a0b3c9, 0 6px 15px rgba(0,0,0,0.1);
+            transition: all 0.08s linear;
+            margin-top: 0.5rem;
+            width: fit-content;
         }
-        .shuffle-btn:hover {
-            background: #e6f0fe;
-            box-shadow: 0 14px 22px rgba(0, 40, 60, 0.15), 0 0 0 2px #aac3df inset;
-            transform: translateY(-3px);
+
+        .reset-button:active {
+            transform: translateY(6px);
+            box-shadow: 0 2px 0 #a0b3c9, 0 6px 15px rgba(0,0,0,0.1);
         }
-        .shuffle-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 6px 10px rgba(0,0,0,0.1), 0 0 0 1px #89a9cc inset;
+
+        /* 网格单元格内部居中，防止意外挤压 */
+        .bubble-grid > * {
+            max-width: 100px;
+            max-height: 100px;
         }
-        /* 状态信息 */
-        .info-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 1.2rem;
-            color: #3a5670;
-            padding: 0 15px;
-            font-weight: 400;
+
+        /* 提示小字 */
+        .hint {
+            color: #596f88;
+            font-size: 0.95rem;
+            margin: 0.2rem 0 0.3rem;
         }
-        .counter {
-            background: #eaf1fb;
-            border-radius: 40px;
-            padding: 8px 22px;
-            box-shadow: inset 0 1px 4px #b0c6dd;
+
+        /* 空白格子占位（没有泡泡时隐藏占位，但grid单元格仍然存在） */
+        .bubble-grid .placeholder {
+            visibility: hidden;
+            pointer-events: none;
         }
-        /* 适配小屏 */
-        @media (max-width: 700px) {
-            .bubble-grid {
-                gap: 12px 8px;
-            }
-            .bubble {
-                font-size: 0.8rem;
-            }
-            .shuffle-btn {
-                padding: 14px 35px;
-                font-size: 1.5rem;
-            }
+
+        footer {
+            font-size: 0.8rem;
+            color: #9aaec2;
+            margin-top: 0.5rem;
         }
     </style>
 </head>
 <body>
-<div class="game-container">
-    <h1>🌊 bubble·match <span>消消乐</span></h1>
-    <div class="info-bar">
-        <div class="counter" id="remainCounter">剩余 20 对</div>
-        <div style="color:#4f6f8f;">✧ 英文深蓝 ✧ 中文浅蓝</div>
+    <div class="game-container">
+        <h2 style="margin:0; color:#1e3a5f;">🌊 单词泡泡配对 · 中英文消消乐</h2>
+        <div class="hint">🔵 点击深蓝英文，再点击浅蓝中文 (相同意思消除)</div>
+
+        <!-- 泡泡网格容器 5列 -->
+        <div class="bubble-grid" id="bubbleGrid"></div>
+
+        <!-- 底部重置按钮 (重复功能) -->
+        <button class="reset-button" id="resetBtn">🔄 重新洗牌</button>
+        <footer style="margin-top: 10px;">深蓝=英文 | 浅蓝=中文</footer>
     </div>
 
-    <!-- 泡泡网格 5x8 = 40个 (20对) -->
-    <div class="bubble-grid" id="bubbleGrid"></div>
+    <script>
+        (function() {
+            // ---------- 词库 ----------
+            const pairs = [
+                { english: "voyage", chinese: "航行；航海" },
+                { english: "play a part in", chinese: "在……中起作用；扮演角色" },
+                { english: "at present", chinese: "目前；现在" },
+                { english: "frequently", chinese: "频繁地；经常" },
+                { english: "official", chinese: "官方的；正式的" },
+                { english: "such as", chinese: "比如；诸如" },
+                { english: "base on", chinese: "以……为基础" },
+                { english: "native", chinese: "本国的；本地人" },
+                { english: "actually", chinese: "实际上；事实上" },
+                { english: "accent", chinese: "口音" },
+                { english: "spelling", chinese: "拼写" },
+                { english: "vocabulary", chinese: "词汇；词汇量" },
+                { english: "because of", chinese: "因为" },
+                { english: "make use of", chinese: "利用" },
+                { english: "fluently", chinese: "流利地" },
+                { english: "command", chinese: "命令；指令" },
+                { english: "recognize", chinese: "认出；辨认" },
+                { english: "identity", chinese: "身份" },
+                { english: "latter", chinese: "后者的" },
+                { english: "suggest", chinese: "建议；暗示" }
+            ];
 
-    <div class="bottom-panel">
-        <button class="shuffle-btn" id="shuffleBtn">⟳ 重排泡泡</button>
-    </div>
-</div>
+            // ---------- 全局变量 ----------
+            const grid = document.getElementById('bubbleGrid');
+            const resetBtn = document.getElementById('resetBtn');
 
-<script>
-    (function() {
-        // ----- 中英文对照词表 (20对) -----
-        const PAIRS = [
-            { english: "loose", chinese: "松动的" },
-            { english: "dusty", chinese: "落满尘埃的" },
-            { english: "curtain", chinese: "窗帘" },
-            { english: "teenager", chinese: "青少年" },
-            { english: "pack up", chinese: "打包" },
-            { english: "overcoat", chinese: "外套" },
-            { english: "suitcase", chinese: "手提箱" },
-            { english: "at dusk", chinese: "傍晚；黄昏时候" },
-            { english: "thunder", chinese: "雷" },
-            { english: "lightning", chinese: "闪电" },
-            { english: "outdoors", chinese: "户外" },
-            { english: "be tired of", chinese: "厌烦" },
-            { english: "go through", chinese: "经历，忍受" },
-            { english: "get along with", chinese: "有进展；和...相处" },
-            { english: "dislike", chinese: "不喜欢" },
-            { english: "join in", chinese: "参加" },
-            { english: "ignore", chinese: "忽视" },
-            { english: "on purpose", chinese: "故意地" },
-            { english: "add up to", chinese: "合计达" },
-            { english: "be concerned about", chinese: "关心" },
-            { english: "calm down", chinese: "平静下来；冷静下来" },
-            { english: "fall in love with", chinese: "爱上" }
-        ];
+            let selectedBubble = null;                // 当前高亮的泡泡DOM
+            let audioContext = null;                   // 用于音效的Web Audio上下文
 
-        // 构建原始泡泡数据 (每个对象包含: id, pairId, type, text)
-        function buildItemList() {
-            const items = [];
-            PAIRS.forEach((pair, idx) => {
-                // 英文泡泡
-                items.push({
-                    uniqueId: `e-${idx}-${Date.now()}-${Math.random()}`,
-                    pairId: idx,
-                    type: 'english',
-                    text: pair.english,
-                });
-                // 中文泡泡
-                items.push({
-                    uniqueId: `c-${idx}-${Date.now()}-${Math.random()}`,
-                    pairId: idx,
-                    type: 'chinese',
-                    text: pair.chinese,
-                });
-            });
-            return items;
-        }
-
-        // 随机打乱数组 (Fisher–Yates)
-        function shuffleArray(arr) {
-            const a = [...arr];
-            for (let i = a.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [a[i], a[j]] = [a[j], a[i]];
-            }
-            return a;
-        }
-
-        // 游戏状态
-        let currentItems = [];               // 当前显示顺序(原始对象引用)
-        let selectedBubble = null;           // 存 { index, element, pairId, type }
-        let matchInProgress = false;          // 简单防连点 (忽略快速点击第三个)
-
-        const grid = document.getElementById('bubbleGrid');
-        const remainSpan = document.getElementById('remainCounter');
-
-        // 渲染网格 (根据 currentItems)
-        function renderBoard() {
-            // 清除所有子节点
-            grid.innerHTML = '';
-
-            currentItems.forEach((item, index) => {
-                const bubbleDiv = document.createElement('div');
-                bubbleDiv.className = `bubble ${item.type}`;  // english 或 chinese
-                bubbleDiv.textContent = item.text;
-                // 储存 item 唯一标识和配对id便于快速查找
-                bubbleDiv.dataset.index = index;
-                bubbleDiv.dataset.pairId = item.pairId;
-                bubbleDiv.dataset.type = item.type;
-                bubbleDiv.dataset.unique = item.uniqueId;
-                bubbleDiv.dataset.matched = 'false';   // 自定义属性标记是否已消除
-
-                // 点击事件直接绑定（也可委托，但简单直接）
-                bubbleDiv.addEventListener('click', bubbleClickHandler);
-                grid.appendChild(bubbleDiv);
-            });
-
-            // 清除任何残留选中状态
-            clearSelectedHighlight();
-            selectedBubble = null;
-
-            // 更新剩余计数 (matched 泡泡不计)
-            updateRemainCount();
-        }
-
-        // 更新剩余未消除对数 (两个都未消除才算一对)
-        function updateRemainCount() {
-            const allBubbles = document.querySelectorAll('.bubble');
-            let matchedCount = 0;
-            allBubbles.forEach(bubble => {
-                if (bubble.classList.contains('matched')) matchedCount++;
-            });
-            const remainPairs = (allBubbles.length - matchedCount) / 2;
-            remainSpan.textContent = `剩余 ${remainPairs} 对`;
-        }
-
-        // 清除所有高亮
-        function clearSelectedHighlight() {
-            document.querySelectorAll('.bubble.selected').forEach(b => b.classList.remove('selected'));
-        }
-
-        // 点击处理器
-        function bubbleClickHandler(e) {
-            const currentBubble = e.currentTarget;
-            // 如果已经消除，忽略点击
-            if (currentBubble.classList.contains('matched')) return;
-
-            // 情况1: 没有选中任何泡泡 -> 选中当前泡泡 (英文才可以作为第一个? 规则: 英文先，但也可以兼容中文先? 我们尊重玩法: 英文先点，但万一先点中文就提示? 更友好: 允许任意先点，但配对必须是英+中。 如果第一个点中文，我们仍选中，但第二个点英文也会判断。不过为避免混乱，仍然可以。但消除条件：英文pairId == 中文pairId。所以两种顺序都行。)
-            if (!selectedBubble) {
-                // 清除可能遗留的高亮
-                clearSelectedHighlight();
-                currentBubble.classList.add('selected');
-                selectedBubble = {
-                    element: currentBubble,
-                    index: parseInt(currentBubble.dataset.index),
-                    pairId: parseInt(currentBubble.dataset.pairId),
-                    type: currentBubble.dataset.type,
-                };
-                return;
-            }
-
-            // 情况2: 已经选中了一个泡泡
-            // 如果点击的是同一个泡泡 -> 取消选中
-            if (selectedBubble.element === currentBubble) {
-                clearSelectedHighlight();
-                selectedBubble = null;
-                return;
-            }
-
-            // 点击不同泡泡
-            const first = selectedBubble;
-            const second = {
-                element: currentBubble,
-                index: parseInt(currentBubble.dataset.index),
-                pairId: parseInt(currentBubble.dataset.pairId),
-                type: currentBubble.dataset.type,
-            };
-
-            // 如果两个泡泡类型相同，则不能消除 -> 放弃之前的选中，将新点击的设为选中(切换)
-            if (first.type === second.type) {
-                // 相同类型: 取消原高亮，高亮新泡泡
-                clearSelectedHighlight();
-                currentBubble.classList.add('selected');
-                selectedBubble = {
-                    element: currentBubble,
-                    index: second.index,
-                    pairId: second.pairId,
-                    type: second.type,
-                };
-                return;
-            }
-
-            // 类型不同: 一个是英文一个是中文，检查配对
-            // 确保 pairId 一致
-            if (first.pairId === second.pairId) {
-                // 配对正确 → 消除两个泡泡
-                // 加一点视觉反馈，然后标记为matched
-                first.element.classList.add('matched');
-                second.element.classList.add('matched');
-                // 移除高亮
-                clearSelectedHighlight();
-                selectedBubble = null;
-
-                // 更新剩余计数
-                updateRemainCount();
-            } else {
-                // 配对错误：不清除，只取消选中和高亮，但不消除
-                clearSelectedHighlight();
-                selectedBubble = null;
-                // 可选轻微抖动提示，为了友好，不加也可以
-            }
-        }
-
-        // 重置/重新打乱 (保留所有未消除泡泡的排序)
-        function reshuffle() {
-            // 收集当前还未消除的item (根据DOM中的matched状态)
-            const unmatchedItems = [];
-            const bubbles = document.querySelectorAll('.bubble');
-
-            bubbles.forEach(bubble => {
-                // 如果未消除 (没有matched类)
-                if (!bubble.classList.contains('matched')) {
-                    const pairId = parseInt(bubble.dataset.pairId);
-                    const type = bubble.dataset.type;
-                    const text = bubble.textContent; // 原始文本
-                    // 重新构建item (用uniqueId吗？为了保证后续点击一致性，重新生成也可以，但pair关系和文本不变)
-                    // 简单根据已有的dataset重新生成对象，保证引用干净
-                    unmatchedItems.push({
-                        uniqueId: bubble.dataset.unique || `new-${Math.random()}`,
-                        pairId: pairId,
-                        type: type,
-                        text: text,
+            // ---------- 生成原始泡泡数据 (包含英文和中文，未打乱) ----------
+            function generateRawBubbles() {
+                const bubbles = [];
+                pairs.forEach((pair, idx) => {
+                    // 英文泡泡
+                    bubbles.push({
+                        id: `e-${idx}-${Date.now()}-${Math.random()}`,
+                        type: 'en',
+                        text: pair.english,
+                        pairId: idx
                     });
+                    // 中文泡泡
+                    bubbles.push({
+                        id: `c-${idx}-${Date.now()}-${Math.random()}`,
+                        type: 'zh',
+                        text: pair.chinese,
+                        pairId: idx
+                    });
+                });
+                return bubbles;
+            }
+
+            // ---------- Fisher-Yates 洗牌 ----------
+            function shuffleArray(arr) {
+                const a = [...arr];
+                for (let i = a.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [a[i], a[j]] = [a[j], a[i]];
+                }
+                return a;
+            }
+
+            // ---------- 播放消除音效 (web audio 合成短促pop) ----------
+            function playPopSound() {
+                try {
+                    // 延迟初始化AudioContext，确保在用户手势后
+                    if (!audioContext) {
+                        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    }
+                    if (audioContext.state === 'suspended') {
+                        audioContext.resume().then(() => playSound()).catch(() => {});
+                    } else {
+                        playSound();
+                    }
+                } catch (e) {
+                    console.warn("音效无法播放:", e);
+                }
+
+                function playSound() {
+                    if (!audioContext) return;
+                    const now = audioContext.currentTime;
+                    const osc = audioContext.createOscillator();
+                    const gain = audioContext.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.value = 520; // 轻快pop
+
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+                    osc.connect(gain);
+                    gain.connect(audioContext.destination);
+                    osc.start(now);
+                    osc.stop(now + 0.12);
+                }
+            }
+
+            // ---------- 清除高亮 ----------
+            function clearSelected() {
+                if (selectedBubble) {
+                    selectedBubble.classList.remove('selected');
+                    selectedBubble = null;
+                }
+            }
+
+            // ---------- 给两个泡泡添加错误闪红 (短暂) ----------
+            function flashError(bubbleA, bubbleB) {
+                [bubbleA, bubbleB].forEach(b => {
+                    if (b && b.classList) {
+                        b.classList.add('error');
+                        setTimeout(() => {
+                            b.classList.remove('error');
+                        }, 200);
+                    }
+                });
+            }
+
+            // ---------- 渲染网格 (根据打乱后的数据) ----------
+            function renderGrid(bubbles) {
+                // 移除所有子节点
+                while (grid.firstChild) {
+                    grid.removeChild(grid.firstChild);
+                }
+
+                // 根据打乱顺序创建泡泡dom
+                bubbles.forEach(item => {
+                    const bubbleDiv = document.createElement('div');
+                    bubbleDiv.className = `bubble ${item.type}`; // en 或 zh
+                    bubbleDiv.textContent = item.text;
+                    // 存储必要数据
+                    bubbleDiv.dataset.type = item.type;
+                    bubbleDiv.dataset.pairId = item.pairId;
+                    bubbleDiv.dataset.id = item.id;      // 可选唯一标识
+                    // 为了显示统一，可以添加title提示（可选）
+                    bubbleDiv.title = item.type === 'en' ? '英文' : '中文';
+                    grid.appendChild(bubbleDiv);
+                });
+
+                // 确保网格永远是40个格子，但因为我们正好40个泡泡，无需补全
+                // 万一由于某些原因少于40? 不会的。但以防万一，补空白占位保持grid稳定
+                const currentCount = grid.children.length;
+                if (currentCount < 40) {
+                    for (let i = 0; i < 40 - currentCount; i++) {
+                        const empty = document.createElement('div');
+                        empty.style.visibility = 'hidden';
+                        empty.style.pointerEvents = 'none';
+                        empty.style.height = '100px';
+                        grid.appendChild(empty);
+                    }
+                }
+            }
+
+            // ---------- 重置/开始新游戏 (打乱并渲染) ----------
+            function resetGame() {
+                // 清除选中
+                clearSelected();
+
+                // 生成原始数据 -> 打乱
+                const raw = generateRawBubbles();
+                const shuffled = shuffleArray(raw);
+                renderGrid(shuffled);
+            }
+
+            // ---------- 网格点击事件代理 (处理所有泡泡点击) ----------
+            grid.addEventListener('click', (e) => {
+                // 获取实际点击的泡泡元素（通过closest）
+                const bubble = e.target.closest('.bubble');
+                if (!bubble) return; // 点击间隙或占位
+
+                // 检查是否已被消除？如果不在DOM树中其实不会触发，但以防万一
+                if (!grid.contains(bubble)) return;
+
+                // 如果之前选中的元素已经被移除（比如通过消除），需要清除指针
+                if (selectedBubble && !grid.contains(selectedBubble)) {
+                    selectedBubble = null;
+                }
+
+                // 读取泡泡数据
+                const currentType = bubble.dataset.type;
+                const currentPairId = bubble.dataset.pairId;
+
+                // 情况1：没有选中任何泡泡
+                if (!selectedBubble) {
+                    // 直接选中当前泡泡，添加高亮
+                    bubble.classList.add('selected');
+                    selectedBubble = bubble;
+                    return;
+                }
+
+                // 情况2：已经选中了一个泡泡 (selectedBubble存在)
+                const selectedType = selectedBubble.dataset.type;
+                const selectedPairId = selectedBubble.dataset.pairId;
+
+                // 如果点击的是同一个泡泡 => 取消选中
+                if (selectedBubble === bubble) {
+                    clearSelected();
+                    return;
+                }
+
+                // 点击不同泡泡，检查类型是否不同 (一个英文一个中文)
+                if (selectedType !== currentType) {
+                    // 类型不同，构成配对尝试
+                    if (selectedPairId === currentPairId) {
+                        // 配对成功！消除两个泡泡
+                        // 1. 播放音效
+                        playPopSound();
+
+                        // 2. 从DOM移除两个泡泡
+                        selectedBubble.remove();
+                        bubble.remove();
+
+                        // 3. 清除选中 (已经移除了)
+                        selectedBubble = null;
+
+                        // 4. 可选的：检查是否所有泡泡都没了？不需要，等待重置即可
+                    } else {
+                        // 配对失败：闪红提示 + 清除选中
+                        flashError(selectedBubble, bubble);
+                        // 移除之前高亮
+                        clearSelected(); // 清除高亮并置空
+                        // 注意：当前点击的泡泡也不应该被选中，所以没有新选中
+                    }
+                } else {
+                    // 类型相同 (两个英文 或 两个中文) => 切换选中为当前泡泡
+                    // 先清除之前的高亮
+                    clearSelected();
+                    // 高亮新的泡泡
+                    bubble.classList.add('selected');
+                    selectedBubble = bubble;
                 }
             });
 
-            // 打乱未消除的泡泡
-            const shuffled = shuffleArray(unmatchedItems);
-            // 更新 currentItems 为 shuffled
-            currentItems = shuffled;
+            // ---------- 重置按钮 ----------
+            resetBtn.addEventListener('click', () => {
+                resetGame();
+                // 同时确保选中的清除干净
+                clearSelected();
+                // 如果之前有音频上下文挂起，不需要特别处理
+            });
 
-            // 重新渲染网格 (此时所有保留的泡泡被打乱，且matched类消失，因为全新dom)
-            renderBoard();
-        }
+            // ---------- 初始化游戏 ----------
+            resetGame();
 
-        // 初始化游戏 (首轮)
-        function initGame() {
-            // 生成原始20对，打乱
-            const rawItems = buildItemList();   // 40个
-            currentItems = shuffleArray(rawItems);
-            renderBoard();
-        }
-
-        // 绑定重排按钮
-        document.getElementById('shuffleBtn').addEventListener('click', () => {
-            // 重排时，已消除的泡泡不参与 (保留消除进度)
-            reshuffle();
-        });
-
-        // 开始
-        initGame();
-
-        // 附加: 点击空白区域清除选中? (不需要)
-        // 但为了防止误触，保留功能。 点击背景不清除。
-    })();
-</script>
+            // ---------- 额外：处理AudioContext自动恢复 (某些浏览器限制) ----------
+            // 在第一次用户交互时激活音频上下文 (但我们在播放时已经处理resume)
+            // 为了更稳健，可以加一个全局初始化手势（但消除时才会触发播放，已经存在手势）
+            // 为了防止点击重置按钮也开启音频上下文？但重置不播放音效，无碍。
+            // 注册一个预热函数 (点击任意地方但仅一次)
+            function warmUpAudio() {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                if (audioContext.state === 'suspended') {
+                    audioContext.resume().then(() => {
+                        // 短暂打开后静默即可
+                    }).catch(()=>{});
+                }
+                document.removeEventListener('click', warmUpAudio);
+            }
+            document.addEventListener('click', warmUpAudio, { once: true });
+        })();
+    </script>
 </body>
 </html>
